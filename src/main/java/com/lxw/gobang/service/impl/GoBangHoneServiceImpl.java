@@ -30,6 +30,6 @@ public class GoBangHoneServiceImpl implements GoBangHomeService {
         goBangHomeMapper.insert(goBangHome);
         JSONObject json = new JSONObject();
         json.put("data", "新建房间号:"+goBangHome.getId());
-        socket.sendInfo("home",json.toJSONString());
+        socket.sendInfo("home",json);
     }
 }

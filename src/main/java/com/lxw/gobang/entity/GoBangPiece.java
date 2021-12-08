@@ -25,6 +25,26 @@ public class GoBangPiece extends CommonEntity {
 
     private Integer pieceNum;
 
+    private String pieceColor;
+
+    private String userId;
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public String getPieceColor() {
+        return pieceColor;
+    }
+
+    public void setPieceColor(String pieceColor) {
+        this.pieceColor = pieceColor;
+    }
+
     public Integer getPieceNum() {
         return pieceNum;
     }
