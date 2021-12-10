@@ -33,10 +33,10 @@ public class GoBangPieceServiceImpl implements GoBangPieceService {
         jsonObject.put("x",goBangPiece.getPlaceX());
         jsonObject.put("y",goBangPiece.getPlaceY());
         jsonObject.put("color",goBangPiece.getPieceColor());
-        try {
-            socket.sendInfo("downPiece",jsonObject);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            socket.sendInfo("downPiece",jsonObject);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
     }
 }

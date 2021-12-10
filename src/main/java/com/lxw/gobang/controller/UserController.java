@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * @author admin
@@ -45,7 +46,17 @@ public class UserController {
     @PostMapping("sendInfo")
     public MyResult sendInfo(){
         try {
-            socket.sendInfo("msg","传输成功");
+            socket.sendInfo("msg","","传输成功");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return MyResult.success();
+    }
+
+    @PostMapping("sendRoomIdInfo")
+    public MyResult sendInfo(@RequestBody Map map){
+        try {
+            socket.sendInfo("msg",map.get("roomId").toString(),"传输成功");
         } catch (IOException e) {
             e.printStackTrace();
         }
