@@ -84,6 +84,7 @@ public class ImportDictValueSocket {
                 jsonObject.put("type","userNum");
                 JSONObject jsonObject1 = new JSONObject();
                 jsonObject1.put("num",ImportDictValueSocket.getOnlineCount(roomId));
+                jsonObject1.put("roomId",roomId);
                 jsonObject.put("data",jsonObject1);
                 item.sendMessage(jsonObject.toJSONString());
             } catch (IOException e) {
@@ -101,11 +102,19 @@ public class ImportDictValueSocket {
         if(!"goBangHall".equals(this.roomId)){
             sendGoBangHomeInfo(this.roomId);
         }
+        JSONObject jsonObject1 = new JSONObject();
+        jsonObject1.put("color","");
+        try {
+            this.sendInfo("changeColor",this.roomId,jsonObject1);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         subOnlineCount(this.roomId);           //在线数减1
         webSocketSet.remove(this);  //从set中删除
         System.out.println("关闭连接");
         webSocketSetRoomMap.get(this.roomId).remove(this);
         subOnlineCountAll();
+        sumMapPeople();
         System.out.println("有一连接关闭！当前房间在线人数为" + getOnlineCount(roomId));
         System.out.println("有一连接关闭！当前总在线人数为" + getOnlineCountAll());
     }
@@ -130,26 +139,34 @@ public class ImportDictValueSocket {
                 webSocketSetRoomMap.get("goBangHall").remove(this);
                 addOnlineCount(roomId); // 房间在线数加1
                 subOnlineCount("goBangHall"); // 大厅人数减1
-                sendGoBangHomeInfo(roomId);
+                sendGoBangHomeInfo(roomId); // 下发当前房间人数消息
                 break;
             case "outRoom":
                 String outRoomId = jsonObject.getString("roomId");
                 this.roomId = "goBangHall";
                 webSocketSetRoomMap.get(outRoomId).remove(this);
-                sendGoBangHomeInfo(outRoomId);
                 addOnlineCount("goBangHall"); // 大厅人数加1
                 subOnlineCount(outRoomId); // 房间在线数减1
-                sendGoBangHallInfo();
+                sendGoBangHomeInfo(outRoomId); // 下发当前房间人数消息
+                sendGoBangHallInfo(); // 下发大厅人数消息
+                JSONObject jsonObject1 = new JSONObject();
+                jsonObject1.put("color","");
+                this.sendInfo("changeColor",outRoomId,jsonObject1);
+                break;
+            case "changeColor":
+                String roomIdc = jsonObject.getString("roomId");
+                this.sendInfo("changeColor",roomIdc,jsonObject.getJSONObject("data"));
+                break;
             default:
                 break;
         }
-        for (ImportDictValueSocket item : webSocketSet) {
-            try {
-                item.sendMessage(message);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+//        for (ImportDictValueSocket item : webSocketSet) {
+//            try {
+//                item.sendMessage(message);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
     }
 
     /**
@@ -172,6 +189,12 @@ public class ImportDictValueSocket {
                     webSocketSetRoomMap.get(roomId).remove(socket);
                 }
             }
+        }
+    }
+    public void sumMapPeople(){
+        this.onlineCountAll = this.webSocketSet.size();
+        for (String roomId :webSocketSetRoomMap.keySet()) {
+            onlineCount.put(roomId,webSocketSetRoomMap.get(roomId).size());
         }
     }
 
@@ -213,7 +236,7 @@ public class ImportDictValueSocket {
     /**
      * 群发自定义消息
      * */
-    public static void sendInfo(String type,String roomId,Object message) throws IOException {
+    public void sendInfo(String type,String roomId,Object message) throws IOException {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("type",type);
         jsonObject.put("data",message);
